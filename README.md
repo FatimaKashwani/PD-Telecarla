@@ -36,3 +36,12 @@ Teleoperator view (RGB, segmentation, and depth camera views on client end).
 
 For evaluating masks, images must be saved.
 For evaluating position, time points (csv) must be saved.
+
+To introduce delay/packet loss (replace "lo" as needed):
+
+sudo tc qdisc add dev lo root netem delay 100ms
+sudo tc qdisc add dev wlo1 root netem loss 5%
+
+To remove: 
+
+sudo tc qdisc del dev lo root
