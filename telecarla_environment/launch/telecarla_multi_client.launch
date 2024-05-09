@@ -1,0 +1,55 @@
+<launch>
+    <arg name="host" default="127.0.0.1"/>
+    <arg name='role_name' default='ego_vehicle'/>
+    <arg name="keyboard_control" default="false"/>
+
+    <!--  GStreamer Client  -->
+    <include file="$(find gstreaming)/launch/rtsp/rtsp_client.launch">
+        <arg name='client_id' value='front'/>
+        <arg name='host' value='$(arg host)'/>
+        <arg name='mount' value='front'/>
+        <arg name='port' value='8551'/>
+    </include>
+    <include file="$(find gstreaming)/launch/rtsp/rtsp_client.launch">
+        <arg name='client_id' value='front_left'/>
+        <arg name='host' value='$(arg host)'/>
+        <arg name='mount' value='front_left'/>
+        <arg name='port' value='8552'/>
+    </include>
+    <include file="$(find gstreaming)/launch/rtsp/rtsp_client.launch">
+        <arg name='client_id' value='front_right'/>
+        <arg name='host' value='$(arg host)'/>
+        <arg name='mount' value='front_right'/>
+        <arg name='port' value='8553'/>
+    </include>
+
+
+    <!-- RPC Client -->
+    <include file="$(find telecarla_rpc)/launch/telecarla_rpc_client.launch">
+        <arg name='rpc_host' value='$(arg host)'/>
+        <arg name='role_name' value='$(arg role_name)'/>
+    </include>
+
+    <!--  Teleop GUI  -->
+    <include file="$(find telecarla_gui)/launch/telecarla_gui.launch">
+        <arg name="sensor_definition_file_path" value="$(find telecarla_gui)/config/multi_cam_gui_config.json"/>
+        <arg name="camera_topics" value="{
+            front: /client/front/rtsp_client/camera/rgb/image,
+            front_left: /client/front_left/rtsp_client/camera/rgb/image,
+            front_right: /client/front_right/rtsp_client/camera/rgb/image,
+
+        }"/>
+        <arg name='role_name' value='$(arg role_name)'/>
+    </include>
+    
+        <!--  Controls  -->
+    <include file="$(find telecarla_manual_control)/launch/telecarla_manual_control_ctrl.launch">
+        <arg name='role_name' value='$(arg role_name)'/>
+        <arg name="keyboard_control" value="$(arg keyboard_control)"/>
+    </include>
+    
+    <node name="dtnet" pkg="telecarla" type="dtnet.py" output="screen">
+    </node>
+
+    
+</launch>

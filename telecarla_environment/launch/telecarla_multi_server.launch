@@ -1,0 +1,50 @@
+<launch>
+    <arg name="bag_input" default="false"/>
+    <arg name="role_name" default="ego_vehicle"/>
+    <arg name="sensor_definition_file" default="$(find telecarla_manual_control)/config/multi_sensors.json"/>
+    <arg name="town" default="Town01"/>
+
+    <!--  Carla ROS bridge  -->
+    <include unless="$(arg bag_input)" file="$(find telecarla_manual_control)/launch/carla_ros_bridge_with_ego_vehicle.launch">
+        <arg name="sensor_definition_file" value="$(arg sensor_definition_file)"/>
+        <arg name="role_name" value="$(arg role_name)"/>
+        <arg name="town" value="$(arg town)"/>
+    </include>
+
+    <!-- RPC Server -->
+    <include file="$(find telecarla_rpc)/launch/telecarla_rpc_server.launch">
+        <arg name='role_name' value='$(arg role_name)'/>
+    </include>
+
+    <!--  GStreamer Server  -->
+    <include file="$(find gstreaming)/launch/rtsp/rtsp_server.launch">
+        <arg name='server_id' value='front'/>
+        <arg name='mount' value='front'/>
+        <arg name='port' value='8551'/>
+        <arg name='in_topic' value='/carla/$(arg role_name)/front/image'/>
+    </include>
+    <include file="$(find gstreaming)/launch/rtsp/rtsp_server.launch">
+        <arg name='server_id' value='front_left'/>
+        <arg name='mount' value='front_left'/>
+        <arg name='port' value='8552'/>
+        <arg name='in_topic' value='/carla/$(arg role_name)/front_left/image'/>
+    </include>
+    <include file="$(find gstreaming)/launch/rtsp/rtsp_server.launch">
+        <arg name='server_id' value='front_right'/>
+        <arg name='mount' value='front_right'/>
+        <arg name='port' value='8553'/>
+        <arg name='in_topic' value='/carla/$(arg role_name)/front_right/image'/>
+     <!-- Include carla_ad_agent.launch -->
+    <include file="~/catkin_ws_teleop/src/ros_bridge/carla_ad_agent/launch/carla_ad_agent.launch"/>
+
+     </include>
+         <node name="server_view" pkg="telecarla" type="server_view.py" output="screen">
+    </node>
+    
+
+         <node name="odometer" pkg="telecarla" type="odometer.py" output="screen">
+    </node>
+
+
+
+</launch>
